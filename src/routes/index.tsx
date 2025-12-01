@@ -19,6 +19,7 @@ function RouteComponent() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -33,6 +34,10 @@ function RouteComponent() {
     setQuestion("");
     setLoading(true);
 
+
+    abortRef.current = new AbortController();
+    const controller = abortRef.current;
+
     try {
       const openRouter = new OpenRouter({ apiKey: import.meta.env.VITE_API_KEY });
 
@@ -44,6 +49,8 @@ function RouteComponent() {
         })),
         stream: true,
         streamOptions: { includeUsage: true },
+      }, {
+        signal: controller.signal,
       });
 
       const assistantMessage: Message = { role: "assistant", content: "" };
@@ -64,11 +71,6 @@ function RouteComponent() {
       }
     } catch (err) {
       console.error(err);
-      setMessages(prev => {
-        const newMessages = [...prev];
-        newMessages[newMessages.length - 1].content = "Error request";
-        return newMessages;
-      });
     } finally {
       setLoading(false);
     }
@@ -130,9 +132,17 @@ function RouteComponent() {
         <button
           type="submit"
           className="p-3 rounded-xl bg-black text-white disabled:opacity-50"
+          disabled={!loading}
+          onClick={() => abortRef.current?.abort()}
+        >
+          Pause
+        </button>
+        <button
+          type="submit"
+          className="p-3 rounded-xl bg-black text-white disabled:opacity-50"
           disabled={loading}
         >
-          {loading ? "Sending..." : "Send"}
+          Send
         </button>
       </form>
     </div>
