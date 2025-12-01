@@ -1,5 +1,6 @@
 import { create } from 'zustand/react';
 import { persist } from 'zustand/middleware';
+import { v4 as uuid } from "uuid";
 
 export type Message = {
   role: "user" | "assistant",
@@ -8,13 +9,14 @@ export type Message = {
 
 interface ChatState {
   chats: Record<string, Message[]>,
+  createChat: () => string,
   addUserMessage: (chatId: string, content: string) => void,
   addAssistantMessage: (chatId: string, content: string) => void,
   appendAssistantDelta: (chatId: string, delta: string) => void,
 }
 
 export const useChatStore = create<ChatState>()(persist((set) => ({
-  chats: {"testUuid": []},
+  chats: {},
   addUserMessage: (chatId, content) => set(state => ({chats: {...state.chats, [chatId]: [...state.chats[chatId], {role: "user", content}]}})),
   addAssistantMessage: (chatId, content) => set(state => ({chats: {...state.chats, [chatId]: [...state.chats[chatId], {role: "assistant", content}]}})),
   appendAssistantDelta: (chatId, delta) => set((state) => {
@@ -39,4 +41,9 @@ export const useChatStore = create<ChatState>()(persist((set) => ({
       },
     };
   }),
+  createChat: () => {
+    const newChatUuid = uuid();
+    set(state => ({ chats: {...state.chats, [newChatUuid]: []}}));
+    return newChatUuid;
+  },
 }),{name:"chat-storage"}))
