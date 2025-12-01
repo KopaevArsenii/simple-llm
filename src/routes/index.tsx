@@ -4,19 +4,18 @@ import { OpenRouter } from '@openrouter/sdk';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { useChatStore } from '../useChatStore.ts';
 
 export const Route = createFileRoute('/')({
   component: RouteComponent,
 })
 
-type Message = {
-  role: "user" | "assistant";
-  content: string;
-};
+const uuid = 'testUuid'
 
 function RouteComponent() {
+  const { chats, addUserMessage, addAssistantMessage, appendAssistantDelta } = useChatStore();
+  const messages = chats[uuid];
   const [question, setQuestion] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -29,8 +28,9 @@ function RouteComponent() {
     e.preventDefault()
     if (!question.trim()) return;
 
-    const userMessage: Message = { role: "user", content: question };
-    setMessages(prev => [...prev, userMessage]);
+    // const userMessage: Message = { role: "user", content: question };
+    // setMessages(prev => [...prev, userMessage]);
+    addUserMessage(uuid, question)
     setQuestion("");
     setLoading(true);
 
@@ -43,29 +43,20 @@ function RouteComponent() {
 
       const stream = await openRouter.chat.send({
         model: "openai/gpt-5-mini",
-        messages: [...messages, userMessage].map(msg => ({
-          role: msg.role,
-          content: msg.content
-        })),
+        messages: [...messages, { role: "user", content: question}],
         stream: true,
         streamOptions: { includeUsage: true },
       }, {
         signal: controller.signal,
       });
 
-      const assistantMessage: Message = { role: "assistant", content: "" };
-      setMessages(prev => [...prev, assistantMessage]);
+      addAssistantMessage(uuid, "")
 
       for await (const chunk of stream) {
         if (chunk.choices?.length) {
           const delta = chunk.choices[0]?.delta?.content;
           if (delta) {
-            assistantMessage.content += delta;
-            setMessages(prev => {
-              const newMessages = [...prev];
-              newMessages[newMessages.length - 1] = assistantMessage;
-              return newMessages;
-            });
+            appendAssistantDelta(uuid, delta)
           }
         }
       }
@@ -82,7 +73,7 @@ function RouteComponent() {
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`p-3 rounded-xl max-w-[80%] ${
+            className={`p-3 rounded-xl max-w-[80%] min-h-[48px] ${
               msg.role === "user" ? "bg-blue-500 text-white ml-auto" : "bg-gray-200 text-black"
             }`}
           >
