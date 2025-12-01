@@ -12,7 +12,7 @@ function RootComponent() {
         <a href="/about">About</a>
         <a href="/contact">Contact</a>
       </nav>
-      <main className="flex-1 p-4 bg-gray-100">
+      <main className="flex-1 bg-gray-100">
         <Outlet />
       </main>
     </div>
