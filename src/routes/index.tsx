@@ -117,7 +117,7 @@ function RouteComponent() {
 
       <form
         onSubmit={handleSend}
-        className="flex space-x-2 items-center"
+        className="flex space-x-2 items-center fixed bottom-[20px] w-[768px] bg-gray-100"
       >
         <input
           type="text"
