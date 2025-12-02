@@ -28,13 +28,16 @@ function RootComponent() {
   return (
     <div className="flex min-h-screen">
       <nav className="w-[300px] bg-black fixed h-full text-white p-4 flex flex-col gap-4">
-        <a href="/" className="flex items-center gap-2"><div className="flex-1">New chat </div><BsFillPlusCircleFill /></a>
+        <a href="/" className="flex items-center gap-2 hover:text-gray-500"><div className="flex-1">New chat </div><BsFillPlusCircleFill /></a>
         <div />
-        {Object.keys(chats).map(uuid => <div className="flex gap-2 items-center" >
-          <a href={`/chat/${uuid}`} className="max-w-full truncate flex-1">{chats[uuid].title}</a>
-          <BsFillPencilFill onClick={() => openRenameModal(uuid)} className="hover:fill-gray-500 transiton-all" />
-          <BsFillTrashFill onClick={() => deleteChat(uuid)} className="shrink-0 hover:fill-red-500 transiton-all" />
-        </div>)}
+        <div className="overflow-y-auto h-full">
+          {Object.keys(chats).map(uuid => (<div className="flex gap-2 items-center min-h-10 transiton-all cursor-pointer">
+            <a href={`/chat/${uuid}`} className="max-w-full truncate flex-1 hover:text-gray-500">{chats[uuid].title}</a>
+            <BsFillPencilFill onClick={() => openRenameModal(uuid)} className="hover:fill-gray-500" />
+            <BsFillTrashFill onClick={() => deleteChat(uuid)} className="hover:fill-red-500" />
+          </div>))}
+        </div>
+
       </nav>
       <main className="flex-1 pl-[300px] pb-[50px] bg-gray-100">
         <Outlet />
