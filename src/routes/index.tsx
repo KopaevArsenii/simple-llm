@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useChatStore } from '../useChatStore.ts';
-import { useState } from 'react';
+import { type FormEvent, useState } from 'react';
 import { BsFillPauseFill, BsFillPlayFill } from 'react-icons/bs';
 
 export const Route = createFileRoute('/')({
@@ -11,7 +11,9 @@ function RouteComponent() {
   const navigate = useNavigate();
   const [question, setQuestion] = useState("");
   const { createChat, addUserMessage } = useChatStore();
-  const handleCreateChatClick = () => {
+
+  const handleCreateChatClick = async (e:FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     const uuid = createChat()
     addUserMessage(uuid, question)
     navigate({
