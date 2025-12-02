@@ -1,53 +1,37 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useChatStore } from '../useChatStore.ts';
-import { type FormEvent, useState } from 'react';
-import { BsFillPauseFill, BsFillPlayFill } from 'react-icons/bs';
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useChatStore } from "../store/useChatStore.ts";
+import { type FormEvent, useState } from "react";
+import { QuestionInput } from "../components/QuestionInput.tsx";
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute("/")({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const [question, setQuestion] = useState("");
   const { createChat, addUserMessage } = useChatStore();
+  const [question, setQuestion] = useState("");
 
-  const handleCreateChatClick = async (e:FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const uuid = createChat()
-    addUserMessage(uuid, question)
-    navigate({
+  const handleCreateChatClick = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const uuid = createChat();
+    addUserMessage(uuid, question);
+    await navigate({
       to: "/chat/$uuid",
-      params: { uuid }
-    })
-  }
-  return <div className="min-h-screen max-w-[768px] mx-auto  flex flex-col p-[20px]">
-    <div className="flex-1 overflow-y-auto flex justify-center items-center text-[38px] font-bold">Feel free to ask whatever you want!</div>
+      params: { uuid },
+    });
+  };
 
-    <form
-      onSubmit={handleCreateChatClick}
-      className="flex space-x-2 items-center fixed bottom-[20px] w-[768px] bg-gray-100"
-    >
-      <input
-        type="text"
-        className="flex-1 p-2 rounded-xl border"
-        placeholder="Enter message..."
+  return (
+    <div className="min-h-screen max-w-[768px] mx-auto  flex flex-col p-[20px]">
+      <div className="flex-1 overflow-y-auto flex justify-center items-center text-[38px] font-bold">
+        Feel free to ask whatever you want!
+      </div>
+      <QuestionInput
         value={question}
-        onChange={(e) => setQuestion(e.target.value)}
+        onChange={setQuestion}
+        onSubmit={handleCreateChatClick}
       />
-      <button
-        type="submit"
-        className="p-3 rounded-xl bg-black text-white disabled:opacity-50"
-        disabled={true}
-      >
-        <BsFillPauseFill />
-      </button>
-      <button
-        type="submit"
-        className="p-3 rounded-xl bg-black text-white disabled:opacity-50"
-      >
-        <BsFillPlayFill />
-      </button>
-    </form>
-  </div>
+    </div>
+  );
 }
