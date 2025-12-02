@@ -1,10 +1,12 @@
-import { createFileRoute, useParams } from '@tanstack/react-router';
+import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router';
 import { useChatStore } from '../../useChatStore.ts';
 import { type FormEvent, useEffect, useRef, useState } from 'react';
 import { OpenRouter } from '@openrouter/sdk';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { BsFillPauseFill, BsFillPlayFill } from 'react-icons/bs';
+
 
 export const Route = createFileRoute('/chat/$uuid')({
   component: RouteComponent,
@@ -12,6 +14,7 @@ export const Route = createFileRoute('/chat/$uuid')({
 
 function RouteComponent() {
   const { uuid } = useParams({ from: '/chat/$uuid'});
+  const navigate = useNavigate();
   const { chats, addUserMessage, addAssistantMessage, appendAssistantDelta } = useChatStore();
   const messages = chats[uuid] || [];
   const [question, setQuestion] = useState("");
@@ -22,6 +25,10 @@ function RouteComponent() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  useEffect(() => {
+    if (messages.length === 0) navigate({ to: "/"})
   }, [messages]);
 
   const sendMessage = async (prompt: string) => {
@@ -77,7 +84,7 @@ function RouteComponent() {
     await sendMessage(msg);
   };
   return (
-    <div className="min-h-screen max-w-[768px] mx-auto  flex flex-col p-[20px]">
+    <div className="max-w-[768px] mx-auto flex flex-col p-[20px]">
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {messages.map((msg, idx) => (
           <div
@@ -123,7 +130,7 @@ function RouteComponent() {
       >
         <input
           type="text"
-          className="flex-1 p-3 rounded-xl border"
+          className="flex-1 p-2 rounded-xl border"
           placeholder="Enter message..."
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
@@ -135,14 +142,14 @@ function RouteComponent() {
           disabled={!loading}
           onClick={() => abortRef.current?.abort()}
         >
-          Pause
+          <BsFillPauseFill />
         </button>
         <button
           type="submit"
           className="p-3 rounded-xl bg-black text-white disabled:opacity-50"
           disabled={loading}
         >
-          Send
+          <BsFillPlayFill />
         </button>
       </form>
     </div>

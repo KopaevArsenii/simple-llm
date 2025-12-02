@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useChatStore } from '../useChatStore.ts';
 import { useState } from 'react';
+import { BsFillPauseFill, BsFillPlayFill } from 'react-icons/bs';
 
 export const Route = createFileRoute('/')({
   component: RouteComponent,
@@ -27,7 +28,7 @@ function RouteComponent() {
     >
       <input
         type="text"
-        className="flex-1 p-3 rounded-xl border"
+        className="flex-1 p-2 rounded-xl border"
         placeholder="Enter message..."
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
@@ -37,13 +38,13 @@ function RouteComponent() {
         className="p-3 rounded-xl bg-black text-white disabled:opacity-50"
         disabled={true}
       >
-        Pause
+        <BsFillPauseFill />
       </button>
       <button
         type="submit"
         className="p-3 rounded-xl bg-black text-white disabled:opacity-50"
       >
-        Send
+        <BsFillPlayFill />
       </button>
     </form>
   </div>

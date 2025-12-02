@@ -13,6 +13,7 @@ interface ChatState {
   addUserMessage: (chatId: string, content: string) => void,
   addAssistantMessage: (chatId: string, content: string) => void,
   appendAssistantDelta: (chatId: string, delta: string) => void,
+  deleteChat: (chatId: string) => void,
 }
 
 export const useChatStore = create<ChatState>()(persist((set) => ({
@@ -46,4 +47,9 @@ export const useChatStore = create<ChatState>()(persist((set) => ({
     set(state => ({ chats: {...state.chats, [newChatUuid]: []}}));
     return newChatUuid;
   },
+  deleteChat: (chatId) => set((state) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { [chatId]: _, ...rest } = state.chats;
+    return { chats: rest };
+  }),
 }),{name:"chat-storage"}))
