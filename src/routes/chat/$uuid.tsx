@@ -16,7 +16,7 @@ function RouteComponent() {
   const { uuid } = useParams({ from: '/chat/$uuid'});
   const navigate = useNavigate();
   const { chats, addUserMessage, addAssistantMessage, appendAssistantDelta } = useChatStore();
-  const messages = chats[uuid] || [];
+  const {messages} = chats[uuid];
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
