@@ -4,7 +4,7 @@ import {
   useParams,
 } from "@tanstack/react-router";
 import { useChatStore } from "../../store/useChatStore.ts";
-import { type FormEvent, useEffect, useRef, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { QuestionInput } from "../../components/QuestionInput.tsx";
 import { useOpenRouter } from "../../hooks/useOpenRouter.ts";
 import { MessageItem } from "../../components/MessageItem.tsx";
@@ -18,7 +18,9 @@ function RouteComponent() {
   const navigate = useNavigate();
 
   const { chats, addUserMessage } = useChatStore();
-  const messages = chats[uuid]?.messages ?? [];
+  const messages = useMemo(() => {
+    return chats[uuid]?.messages ?? [];
+  }, [chats, uuid]);
   const { loading, sendMessage, abort } = useOpenRouter(uuid, messages);
   const [question, setQuestion] = useState("");
   const [isAtBottom, setIsAtBottom] = useState(true);
