@@ -12,43 +12,52 @@ interface ChatState {
   deleteChat: (chatId: string) => void;
   renameChat: (chatId: string, title: string) => void;
 }
+const updateChat = (
+  state: ChatState,
+  chatId: string,
+  updates: Partial<Chat>,
+): ChatState => {
+  const chat = state.chats[chatId];
+  if (!chat) return state;
+
+  return {
+    ...state,
+    chats: {
+      ...state.chats,
+      [chatId]: { ...chat, ...updates },
+    },
+  };
+};
+
+const appendMessage = (
+  state: ChatState,
+  chatId: string,
+  message: { role: "user" | "assistant"; content: string },
+) => {
+  const chat = state.chats[chatId];
+  if (!chat) return state;
+
+  return updateChat(state, chatId, {
+    messages: [...chat.messages, message],
+  });
+};
 
 export const useChatStore = create<ChatState>()(
   persist(
     (set) => ({
       chats: {},
       addUserMessage: (chatId, content) =>
-        set((state) => ({
-          chats: {
-            ...state.chats,
-            [chatId]: {
-              ...state.chats[chatId],
-              messages: [
-                ...state.chats[chatId].messages,
-                { role: "user", content },
-              ],
-            },
-          },
-        })),
+        set((state) => appendMessage(state, chatId, { role: "user", content })),
       addAssistantMessage: (chatId, content) =>
-        set((state) => ({
-          chats: {
-            ...state.chats,
-            [chatId]: {
-              ...state.chats[chatId],
-              messages: [
-                ...state.chats[chatId].messages,
-                { role: "assistant", content },
-              ],
-            },
-          },
-        })),
+        set((state) =>
+          appendMessage(state, chatId, { role: "assistant", content }),
+        ),
       appendAssistantDelta: (chatId, delta) =>
         set((state) => {
           const chat = state.chats[chatId];
           if (!chat) return state;
 
-          const { messages, title } = chat;
+          const { messages } = chat;
           if (!messages.length) return state;
 
           const lastMessage = messages[messages.length - 1];
@@ -62,16 +71,7 @@ export const useChatStore = create<ChatState>()(
             content: lastMessage.content + delta,
           };
 
-          return {
-            chats: {
-              ...state.chats,
-              [chatId]: {
-                ...chat,
-                title,
-                messages: updatedMessages,
-              },
-            },
-          };
+          return updateChat(state, chatId, { messages: updatedMessages });
         }),
       createChat: () => {
         const newChatUuid = uuid();
@@ -93,15 +93,7 @@ export const useChatStore = create<ChatState>()(
           return { chats: rest };
         }),
       renameChat: (chatId, title) =>
-        set((state) => ({
-          chats: {
-            ...state.chats,
-            [chatId]: {
-              ...state.chats[chatId],
-              title,
-            },
-          },
-        })),
+        set((state) => updateChat(state, chatId, { title })),
     }),
     { name: "chat-storage" },
   ),

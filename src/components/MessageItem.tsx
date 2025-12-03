@@ -20,7 +20,7 @@ const markDownIt = new MarkdownIt({
     if (lang && hljs.getLanguage(lang)) {
       return `<pre class="hljs overflow-x-auto max-w-full"><code>${hljs.highlight(code, { language: lang }).value}</code></pre>`;
     }
-    return `<pre class="hljs overflow-x-auto max-w-full"><code>${MarkdownIt.prototype.utils.escapeHtml(code)}</code></pre>`;
+    return `<pre class="hljs overflow-x-auto max-w-full"><code>${markDownIt.utils.escapeHtml(code)}</code></pre>`;
   },
 });
 
