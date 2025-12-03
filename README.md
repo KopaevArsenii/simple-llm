@@ -5,4 +5,8 @@ It’s designed to be easy to integrate, easy to extend, and easy to run locally
 
 ![Preview](./preview.gif)
 
-**Fill .env file with your api key befor usage!**
+**Before usage**
+Create .env file at root of project and fill it with api key!
+```
+VITE_API_KEY="<your_api_key>"
+```
