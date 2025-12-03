@@ -17,11 +17,14 @@ function RouteComponent() {
   const { uuid } = useParams({ from: "/chat/$uuid" });
   const navigate = useNavigate();
 
-  const { chats, addUserMessage } = useChatStore();
+  const { chats, addUserMessage, renameChat } = useChatStore();
   const messages = useMemo(() => {
     return chats[uuid]?.messages ?? [];
   }, [chats, uuid]);
-  const { loading, sendMessage, abort } = useOpenRouter(uuid, messages);
+  const { loading, sendMessage, abort, getChatTitle } = useOpenRouter(
+    uuid,
+    messages,
+  );
   const [question, setQuestion] = useState("");
   const [isAtBottom, setIsAtBottom] = useState(true);
 
@@ -52,6 +55,9 @@ function RouteComponent() {
     ) {
       hasInitializedRef.current = true;
       sendMessage(messages[0].content).then(() => {});
+      getChatTitle(messages[0].content).then((title) => {
+        if (title) renameChat(uuid, title);
+      });
     }
   }, [messages, sendMessage]);
 

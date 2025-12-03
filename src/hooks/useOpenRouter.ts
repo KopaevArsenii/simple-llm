@@ -8,6 +8,10 @@ export function useOpenRouter(uuid: string, messages: Message[]) {
   const abortRef = useRef<AbortController | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const openRouter = new OpenRouter({
+    apiKey: import.meta.env.VITE_API_KEY,
+  });
+
   const sendMessage = async (prompt: string) => {
     setLoading(true);
 
@@ -15,10 +19,6 @@ export function useOpenRouter(uuid: string, messages: Message[]) {
     const controller = abortRef.current;
 
     try {
-      const openRouter = new OpenRouter({
-        apiKey: import.meta.env.VITE_API_KEY,
-      });
-
       const stream = await openRouter.chat.send(
         {
           model: "openai/gpt-5-mini",
@@ -44,6 +44,25 @@ export function useOpenRouter(uuid: string, messages: Message[]) {
     }
   };
 
+  const getChatTitle = async (prompt: string): Promise<string | undefined> => {
+    try {
+      const response = await openRouter.chat.send({
+        model: "openai/gpt-5-mini",
+        messages: [
+          {
+            role: "user",
+            content: `Generate a short chat title in English based on this message. Keep it under 5 words and return only the title: "${prompt}"`,
+          },
+        ],
+      });
+
+      return response.choices?.[0]?.message?.content?.toString();
+    } catch (err) {
+      console.error("Failed to get chat title:", err);
+      return undefined;
+    }
+  };
+
   const abort = () => {
     abortRef.current?.abort();
   };
@@ -51,6 +70,7 @@ export function useOpenRouter(uuid: string, messages: Message[]) {
   return {
     loading,
     sendMessage,
+    getChatTitle,
     abort,
   };
 }
